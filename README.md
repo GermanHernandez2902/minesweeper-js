@@ -26,9 +26,6 @@ minesweeper-js/
 │── minesweeper.html # Juego principal
 │── minesweeper.js # Lógica del juego
 
-yaml
-Copiar código
-
 ---
 
 ## 🕹️ Cómo Jugar
