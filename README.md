@@ -20,12 +20,6 @@ Este juego replica la lógica clásica del buscaminas, con tablero dinámico, ba
 - Almacenamiento del **mejor tiempo** con `localStorage`.
 - Diseño responsive y visual moderno.
 
-## 📂 Estructura del Proyecto
-minesweeper-js/
-│── index.html # Página de presentación
-│── minesweeper.html # Juego principal
-│── minesweeper.js # Lógica del juego
-
 ---
 
 ## 🕹️ Cómo Jugar
