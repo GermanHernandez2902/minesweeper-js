@@ -1,196 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Buscaminas - Minesweeper</title>
-
-  <!-- Estilos para que el juego se vea moderno -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minesweeper JS - Proyecto</title>
   <style>
-    :root{
-      --bg: #0f1724;
-      --card: #0b1220;
-      --accent: #06b6d4;
-      --safe: #e6f4f1;
-      --danger: #ff6b6b;
-      --tile-bg: #1b2636;
-      --tile-border: #10151b;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0f1724, #071023 120%);
+      color: #e6f4f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
     }
-
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      background:linear-gradient(180deg,var(--bg), #071023 120%);
-      color:var(--safe);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
+    .container {
+      max-width: 600px;
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     }
-
-    .app {
-      width:100%;
-      max-width:1100px;
-      border-radius:12px;
-      padding:20px;
-      box-shadow: 0 8px 30px rgba(2,6,23,0.7);
-      display:grid;
-      grid-template-columns: 360px 1fr; 
-      gap:20px;
+    h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+      color: #06b6d4;
     }
-
-    /* panel lateral: configuración y estadísticas */
-    .panel {
-      padding:16px;
-      border-radius:8px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+    p {
+      font-size: 1.1rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
     }
-
-    select,input[type="number"]{
-      background:transparent;
-      color:var(--safe);
-      border:1px solid rgba(255,255,255,0.06);
-      padding:8px;
-      border-radius:6px;
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #06b6d4;
+      color: #012027;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 0.3s ease;
     }
-    button{
-      cursor:pointer;
-      padding:10px 12px;
-      background:var(--accent);
-      color:#012027;
-      border:none;
-      border-radius:8px;
-      font-weight:600;
+    .btn:hover {
+      background: #0891b2;
     }
-    button.secondary{
-      background:transparent;
-      color:var(--safe);
-      border:1px solid rgba(255,255,255,0.06);
-    }
-
-    /* tablero */
-    .board {
-      display:grid;
-      gap:4px;
-      padding:12px;
-      border-radius:10px;
-    }
-
-    /* estilo de cada celda */
-    .cell {
-      width:36px;
-      height:36px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:700;
-      border-radius:6px;
-      background:var(--tile-bg);
-      border:1px solid var(--tile-border);
-      color:var(--safe);
-      cursor: pointer;
-    }
-    .cell.revealed { background:#dfe8ee; color:#0b1220; cursor:default }
-    .cell.mine { background:#ffb6b6; color:var(--danger) }
-    .cell.flagged { background:rgba(6,182,212,0.12); color:var(--accent) }
-
-    /* colores para números */
-    .cell.number-1 { color: #2b6cb0; }
-    .cell.number-2 { color: #2f855a; }
-    .cell.number-3 { color: #c05621; }
-    .cell.number-4 { color: #6b21a8; }
-    .cell.number-5 { color: #b91c1c; }
-    .cell.number-6 { color: #0ea5a4; }
-    .cell.number-7 { color: #0f1724; }
-    .cell.number-8 { color: #94a3b8; }
-
-    .footer{
-      margin-top:8px;
-      font-size:13px;
-      color:#99a0ad;
-      text-align:center;
-    }
-
-    @media (max-width:900px){
-      .app{grid-template-columns:1fr; padding:12px}
-      .panel{order:2}
+    .footer {
+      margin-top: 25px;
+      font-size: 0.9rem;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-
-    <!-- Panel lateral: aquí elegimos la dificultad, minas, y vemos tiempo y minas restantes -->
-    <div class="panel">
-      <h2>Buscaminas 🎯</h2>
-
-      <!-- Selector de dificultad -->
-      <div>
-        <label><strong>Modo</strong></label>
-        <select id="presetSelect">
-          <option value="8x8-10">Fácil — 8x8 / 10 minas</option>
-          <option value="16x16-40">Medio — 16x16 / 40 minas</option>
-          <option value="24x16-99">Difícil — 24x16 / 99 minas</option>
-          <option value="custom">Personalizado</option>
-        </select>
-      </div>
-
-      <!-- Controles extra solo si elegimos "Personalizado" -->
-      <div id="customControls" style="display:none">
-        <label><strong>Personalizar tablero</strong></label>
-        <div>
-          <input id="rows" type="number" min="5" max="40" value="8" /> x
-          <input id="cols" type="number" min="5" max="60" value="8" />
-        </div>
-        <div>
-          <label>Minas</label>
-          <input id="mines" type="number" min="1" max="120" value="10" />
-        </div>
-      </div>
-
-      <!-- Botones principales -->
-      <div>
-        <button id="btnStart">Iniciar Juego</button>
-        <button class="secondary" id="btnReset">Reiniciar</button>
-      </div>
-
-      <!-- Info del juego -->
-      <div>
-        <div>Minas restantes: <span id="minesLeft">0</span></div>
-        <div>Tiempo: <span id="timer">00:00</span></div>
-      </div>
-
-      <!-- Mejor tiempo guardado -->
-      <div>
-        <div>Mejor tiempo:</div>
-        <div id="bestTime">—</div>
-      </div>
-
-      <!-- Mini instructivo -->
-      <div style="font-size:13px; color:#9fb0bb">
-        <p><strong>Cómo jugar:</strong></p>
-        <p>Clic izquierdo descubre una celda. Clic derecho pone/quita una bandera. Ganas al descubrir todas las celdas sin mina.</p>
-      </div>
-
-      <div class="footer">Desarrollado por German Hernandez — Minesweeper JS</div>
-    </div>
-
-    <!-- Tablero: aquí se dibuja el grid de celdas con JS -->
-    <div>
-      <div class="board-controls">
-        <div style="color:#cbd5e1">Tablero</div>
-        <button id="btnShowSolution" class="secondary">Mostrar minas (debug)</button>
-      </div>
-
-      <div id="board" class="board"></div>
+  <div class="container">
+    <h1>Buscaminas en JavaScript</h1>
+    <p>
+      Este proyecto es una implementación del clásico juego <strong>Minesweeper</strong> (Buscaminas),
+      desarrollado completamente en <strong>HTML, CSS y JavaScript</strong>.
+      Incluye selección de dificultad, banderas, contador de tiempo y persistencia del mejor tiempo con <em>localStorage</em>.
+    </p>
+    <a href="minesweeper.html" class="btn">🎮 Jugar ahora</a>
+    <div class="footer">
+      Desarrollado por German Hernandez — Proyecto Minesweeper JS
     </div>
   </div>
-
-  <!-- Aquí se conecta la lógica del juego -->
-  <script src="minesweeper.js"></script>
 </body>
 </html>
